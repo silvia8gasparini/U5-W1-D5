@@ -4,6 +4,7 @@ import it.epicode.GestionePrenotazioni.entities.Edificio;
 import it.epicode.GestionePrenotazioni.entities.Postazione;
 import it.epicode.GestionePrenotazioni.entities.Prenotazione;
 import it.epicode.GestionePrenotazioni.entities.Utente;
+import it.epicode.GestionePrenotazioni.enumeration.TipoPostazione;
 import it.epicode.GestionePrenotazioni.repository.EdificioRepository;
 import it.epicode.GestionePrenotazioni.repository.PostazioneRepository;
 import it.epicode.GestionePrenotazioni.repository.PrenotazioneRepository;
@@ -37,24 +38,15 @@ public class Runner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-
-        if (!edificioRepository.existsByNomeAndCitta(edificioVenezia.getNome(), edificioVenezia.getCitta())) {
+        if (edificioRepository.count() == 0) {
             edificioRepository.save(edificioVenezia);
-        }
-        if (!edificioRepository.existsByNomeAndCitta(edificioFirenze.getNome(), edificioFirenze.getCitta())) {
             edificioRepository.save(edificioFirenze);
-        }
-        if (!edificioRepository.existsByNomeAndCitta(edificioTorino.getNome(), edificioTorino.getCitta())) {
             edificioRepository.save(edificioTorino);
         }
 
-        if (!postazioneRepository.existsByCodiceUnivoco(p1.getCodiceUnivoco())) {
+        if (postazioneRepository.count() == 0) {
             postazioneRepository.save(p1);
-        }
-        if (!postazioneRepository.existsByCodiceUnivoco(p2.getCodiceUnivoco())) {
             postazioneRepository.save(p2);
-        }
-        if (!postazioneRepository.existsByCodiceUnivoco(p3.getCodiceUnivoco())) {
             postazioneRepository.save(p3);
         }
 
@@ -74,26 +66,55 @@ public class Runner implements CommandLineRunner {
         System.out.print("Inserisci il tuo username: ");
         String username = scanner.nextLine();
         Optional<Utente> optionalUtente = utenteRepository.findByUsername(username).stream().findFirst();
-
         if (optionalUtente.isEmpty()) {
             System.out.println("Utente non trovato.");
+            scanner.close();
             return;
         }
-
         Utente utente = optionalUtente.get();
 
-        List<Postazione> postazioni = postazioneRepository.findAll();
-        if (postazioni.isEmpty()) {
-            System.out.println("Nessuna postazione disponibile.");
-            return;
+        System.out.print("Vuoi filtrare le postazioni per tipo e città? (s/n): ");
+        String risposta = scanner.nextLine().trim().toLowerCase();
+        List<Postazione> postazioni;
+
+        if ("s".equals(risposta)) {
+            System.out.print("Inserisci il tipo di postazione (OPENSPACE, SALA_RIUNIONI, PRIVATO): ");
+            String tipoInput = scanner.nextLine().toUpperCase();
+            TipoPostazione tipo;
+            try {
+                tipo = TipoPostazione.valueOf(tipoInput);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Tipo di postazione non valido.");
+                scanner.close();
+                return;
+            }
+
+            System.out.print("Inserisci la città di interesse: ");
+            String citta = scanner.nextLine();
+
+            postazioni = postazioneRepository.findByTipoAndEdificio_Citta(tipo, citta);
+
+            if (postazioni.isEmpty()) {
+                System.out.println("Nessuna postazione trovata per tipo " + tipo + " nella città " + citta);
+                scanner.close();
+                return;
+            }
+
+        } else {
+            postazioni = postazioneRepository.findAll();
+            if (postazioni.isEmpty()) {
+                System.out.println("Nessuna postazione disponibile.");
+                scanner.close();
+                return;
+            }
         }
 
         System.out.println("Postazioni disponibili:");
         for (int i = 0; i < postazioni.size(); i++) {
             Postazione p = postazioni.get(i);
             System.out.println((i + 1) + " - " + p.getDescrizione() +
-                    " | Tipo: " + p.getTipo() +
-                    " | Edificio: " + p.getEdificio().getNome() +
+                    "Tipo: " + p.getTipo() +
+                    "Edificio: " + p.getEdificio().getNome() +
                     " - " + p.getEdificio().getCitta());
         }
 
@@ -101,6 +122,7 @@ public class Runner implements CommandLineRunner {
         int scelta = Integer.parseInt(scanner.nextLine());
         if (scelta < 1 || scelta > postazioni.size()) {
             System.out.println("Scelta non valida.");
+            scanner.close();
             return;
         }
         Postazione postazioneScelta = postazioni.get(scelta - 1);
@@ -111,6 +133,7 @@ public class Runner implements CommandLineRunner {
             data = LocalDate.parse(scanner.nextLine());
         } catch (Exception e) {
             System.out.println("Formato data non valido.");
+            scanner.close();
             return;
         }
 
