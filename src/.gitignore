@@ -1,0 +1,19 @@
+# Directory target di Maven
+/target/
+
+# File di configurazione di IntelliJ IDEA
+/.idea/
+/*.iml
+
+# File di log
+*.log
+
+# File temporanei
+*.tmp
+*.temp
+
+# Configurazioni di sistema
+.DS_Store
+
+
+src/main/resources/application.properties
