@@ -1,13 +1,13 @@
-package it.epicode.U5W1D5project;
+package it.epicode.GestionePrenotazioni;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class U5W1D5projectApplication {
+public class GestionePrenotazioniApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(U5W1D5projectApplication.class, args);
+		SpringApplication.run(GestionePrenotazioniApplication.class, args);
 	}
 
 }

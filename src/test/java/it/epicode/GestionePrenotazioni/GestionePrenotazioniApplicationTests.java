@@ -1,10 +1,10 @@
-package it.epicode.U5W1D5project;
+package it.epicode.GestionePrenotazioni;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class U5W1D5projectApplicationTests {
+class GestionePrenotazioniApplicationTests {
 
 	@Test
 	void contextLoads() {
